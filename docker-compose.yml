@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+#####################################
+  ollama:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    container_name: ollama
+    volumes:
+      - /mnt/data/ollama:/root/.ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+#####################################
+  open-webui:
+    build:
+      context: .
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+      dockerfile: Dockerfile
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
+    volumes:
+      - /mnt/data/openwebui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - ${OPEN_WEBUI_PORT-3000}:8080
+    environment:
+      OLLAMA_BASE_URL: 'http://ollama:11434'
+      WEBUI_SECRET_KEY: ''
+      ENABLE_RAG_WEB_SEARCH: True
+      RAG_WEB_SEARCH_ENGINE: "searxng"
+      RAG_WEB_SEARHC_RESULT_COUNT: 5
+      RAG_WEB_CONCURRENT_REQUESTS: 10
+      SEARXNG_QUERY_URL: "http://searxng:8090/search?q=<query>"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+#####################################
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm
+    command:
+      - "--config"
+      - "/app/config.yaml"
+    ports:
+      - "8000:8000"
+      - "4000:4000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    volumes:
+      #- ./litellm-config.yaml:/app/proxy_server_config.yaml
+      - ./litellm-config.yaml:/app/config.yaml
+    depends_on:
+      - ollama
+    restart: unless-stopped
+#####################################
+  redis:
+    container_name: redis
+    image: docker.io/valkey/valkey:8-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: unless-stopped
+    volumes:
+      - valkey-data2:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+#####################################
+  searxng:
+    container_name: searxng
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
+      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+#####################################
+
+volumes:
+  caddy-data:
+  caddy-config:
+  valkey-data2:
+  ollama: {}
+  open-webui: {}

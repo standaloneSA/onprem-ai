@@ -1,0 +1,38 @@
+# litellm-config.yaml
+
+
+model_list:
+  - model_name: local/mistral-small:24b
+    litellm_params:
+      model: "ollama_chat/mistral-small:24b"
+      keep_alive: "-1"
+      api_base: "http://ollama:11434"
+    model_info:
+      supports_function_calling: true
+  - model_name: local/deepseek-r1:32b
+    litellm_params:
+      model: "ollama_chat/deepseek-r1:32b"
+      keep_alive: "-1"
+      api_base: "http://ollama:11434"
+  - model_name: local/deepseek-r1:70b
+    litellm_params:
+      model: "ollama_chat/deepseek-r1:70b"
+      keep_alive: "-1"
+      api_base: "http://ollama:11434"
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: o1-mini
+    litellm_params:
+      model: openai/o1-mini
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: groq-qwen-2.5-coder-32b
+    litellm_params:
+      model: groq/quen-2.5-coder-32b
+      api_key: os.environ/GROQ_API_KEY
+  - model_name: groq-mixtral-8x7b
+    litellm_params:
+      model: groq/mixtral-8x7b-32768
+      api_key: os.environ/GROQ_API_KEY
+
