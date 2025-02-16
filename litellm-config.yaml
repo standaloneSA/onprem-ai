@@ -19,19 +19,19 @@ model_list:
       model: "ollama_chat/deepseek-r1:70b"
       keep_alive: "-1"
       api_base: "http://ollama:11434"
-  - model_name: gpt-4o
+  - model_name: openai/gpt-4o
     litellm_params:
       model: openai/gpt-4o
       api_key: os.environ/OPENAI_API_KEY
-  - model_name: o1-mini
+  - model_name: openai/o1-mini
     litellm_params:
       model: openai/o1-mini
       api_key: os.environ/OPENAI_API_KEY
-  - model_name: groq-qwen-2.5-coder-32b
+  - model_name: groq/qwen-2.5-coder-32b
     litellm_params:
       model: groq/qwen-2.5-coder-32b
       api_key: os.environ/GROQ_API_KEY
-  - model_name: groq-mixtral-8x7b
+  - model_name: groq/mixtral-8x7b
     litellm_params:
       model: groq/mixtral-8x7b-32768
       api_key: os.environ/GROQ_API_KEY
