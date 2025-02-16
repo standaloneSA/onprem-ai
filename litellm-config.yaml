@@ -29,7 +29,7 @@ model_list:
       api_key: os.environ/OPENAI_API_KEY
   - model_name: groq-qwen-2.5-coder-32b
     litellm_params:
-      model: groq/quen-2.5-coder-32b
+      model: groq/qwen-2.5-coder-32b
       api_key: os.environ/GROQ_API_KEY
   - model_name: groq-mixtral-8x7b
     litellm_params:
